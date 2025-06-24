@@ -453,11 +453,15 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('bioSection').style.display = 'flex'; // flex để giữ căn giữa
         });
     }
-});
-function loadMainScript() {
-  document.getElementById("activationPopup").style.display = "none";
+});function allow() {
+  document.getElementById("popup").style.display = "none";
 
-  const script = document.createElement("script");
-  script.src = "main.js"; // ← Đổi tên nếu bạn dùng file khác
-  document.body.appendChild(script);
+  // Nếu muốn hiện nội dung nào đó khi cho phép, ví dụ:
+  const bio = document.getElementById("bio");
+  if (bio) bio.style.display = "block";
+
+  // Nạp script chính nếu cần
+  const mainScript = document.createElement("script");
+  mainScript.src = "main.js"; // <-- Đổi tùy theo bạn
+  document.body.appendChild(mainScript);
 }
