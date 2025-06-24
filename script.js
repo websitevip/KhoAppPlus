@@ -454,3 +454,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+function loadMainScript() {
+  document.getElementById("activationPopup").style.display = "none";
+
+  const script = document.createElement("script");
+  script.src = "main.js"; // ← Đổi tên nếu bạn dùng file khác
+  document.body.appendChild(script);
+}
