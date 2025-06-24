@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPA File Share - Chia sẻ ứng dụng iOS</title>
+    <link rel="icon" href="https://i.ibb.co/6cJb98nY/IMG-6791.jpg" type="image/x-icon">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- BIO SECTION -->
+    <section class="bio-section" id="bioSection">
+        <div class="bio-container">
+            <img src="https://i.ibb.co/6cJb98nY/IMG-6791.jpg" alt="Avatar" class="bio-avatar">
+            <h2 class="bio-name">Cao Nhật Minh</h2>
+            <p class="bio-description">Chia sẻ ứng dụng iOS miễn phí và hỗ trợ cộng đồng</p>
+            <div class="bio-links">
+              <button class="bio-btn" id="openAppPlus"><i class="fas fa-box-open"></i> Kho App Plus</button>
+                <a href="https://t.me/ontop2k9" target="_blank" class="bio-btn"><i class="fab fa-telegram"></i> Telegram</a>
+                <a href="https://m.facebook.com/minh21092k9/" target="_blank" class="bio-btn"><i class="fab fa-facebook-f"></i> Facebook</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN APP CONTENT ẨN LÚC ĐẦU -->
+    <div id="mainAppContent" style="display: none;">
+        <div class="container">
+          <p id="backToBio" class="back-text">← Quay lại</p>
+            <header class="header">
+                <div class="logo">
+                    <i class="fab fa-apple"></i>
+                    <h1>IPA Share</h1>
+                </div>
+                <p class="tagline">Kho ứng dụng ipa miễn phí</p>
+                <div class="certificate-notice">
+                    <p>Nếu chưa có chứng chỉ để tải app hãy truy cập <a href="https://chungchiontop.site" target="_blank">tại đây</a> để mua </p>
+                </div>
+            </header>
+
+            <main class="main-content">
+                <section class="category-nav">
+                    <div class="category-tabs">
+                        <button class="tab-btn active" data-category="all">
+                            <i class="fas fa-th-large"></i>
+                            <span>Tất cả</span>
+                        </button>
+                        <button class="tab-btn" data-category="apps">
+                            <i class="fas fa-mobile-alt"></i>
+                            <span>Ứng dụng</span>
+                        </button>
+                        <button class="tab-btn" data-category="games">
+                            <i class="fas fa-gamepad"></i>
+                            <span>Game</span>
+                        </button>
+                    </div>
+                </section>
+
+                <section class="files-section">
+                    <div class="section-header">
+                        <h2 id="sectionTitle"><i class="fas fa-mobile-alt"></i> Ứng dụng</h2>
+                        <div class="search-container">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="searchInput" placeholder="Tìm kiếm ứng dụng theo tên...">
+                                <button id="clearSearch" style="display: none;"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="files-grid" id="filesGrid"></div>
+                </section>
+
+                <div class="upload-progress" id="uploadProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p id="progressText">Đang tải lên...</p>
+                </div>
+            </main>
+
+            <footer class="footer">
+                <button class="contact-btn" id="contactBtn">
+                    <i class="fas fa-envelope"></i>
+                    <span>Liên hệ</span>
+                </button>
+                <p>&copy; 2025 Nhật Minh. Phát triển cho cộng đồng iOS</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Modal Chi tiết app -->
+    <div class="modal" id="fileModal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div class="modal-header">
+                <img id="modalIcon" src="" alt="App Icon">
+                <div>
+                    <h3 id="modalTitle"></h3>
+                    <p id="modalVersion"></p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <p id="modalDescription"></p>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" id="downloadBtn">
+                        <i class="fas fa-download"></i> Tải xuống
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content contact-modal-content">
+            <span class="close" id="closeContactModal">&times;</span>
+            <div class="contact-modal-header">
+                <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                <h3>Liên hệ với chúng tôi</h3>
+                <p>Chọn phương thức liên hệ phù hợp với bạn</p>
+            </div>
+            <div class="contact-modal-body">
+                <div class="contact-methods">
+                    <a href="https://t.me/ontop2k9" target="_blank" class="contact-method telegram">
+                        <div class="contact-method-icon"><i class="fab fa-telegram-plane"></i></div>
+                        <div class="contact-method-info"><h4>Telegram</h4><p>@ontop2k9</p></div>
+                        <i class="fas fa-external-link-alt contact-arrow"></i>
+                    </a>
+                    <a href="https://m.facebook.com/minh21092k9/" target="_blank" class="contact-method facebook">
+                        <div class="contact-method-icon"><i class="fab fa-facebook-f"></i></div>
+                        <div class="contact-method-info"><h4>Facebook</h4><p>Cao Nhật Minh</p></div>
+                        <i class="fas fa-external-link-alt contact-arrow"></i>
+                    </a>
+                </div>
+                <div class="contact-footer">
+                    <p><i class="fas fa-clock"></i> Thời gian hỗ trợ: 8:00 - 22:00 (GMT+7)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="apps-data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
