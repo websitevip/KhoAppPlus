@@ -7,7 +7,7 @@ const appsData = [
     "version": "v1.0",
     "size": "223 MB",
     "category": "apps",
-    "description": "Mở khoa tất cả tính năng",
+    "description": "Full tính năng edit video",
     "icon": "https://i.ibb.co/rRdWD1qn/1b79e4e2161a.jpg",
     "addedDate": new Date("2025-06-24"),
     "downloadLink": "https://file.ipaomtk.com/ipa/CapCut.ipa"
@@ -124,17 +124,6 @@ const appsData = [
         downloadLink: "https://tinyurl.com/y6uxtzs5"
     },
     {
-        id: 9,
-        name: "Telegram Mod",
-        version: "v1.0",
-        size: "149 MB",
-        category: "apps",
-        description: "Menu Plugin hỗ trợ ( Bấm vào icon KETA để kích hoạt ),Nhân bản không giới hạn,Fix trùng data,Hạn chế quét tài khoản,Fix Crash,Fix Signon",
-        icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/15/f9/a4/15f9a4ec-71a6-732a-65ef-89dd9b69b8cf/AppIconLLC-0-0-1x_U007emarketing-0-8-0-0-85-220.png/512x512bb.jpg",
-        addedDate: new Date("2025-06-20"),
-        downloadLink: "https://tinyurl.com/bv6yru63"
-    },
-    {
         id: 10,
         name: "Shadowrocket",
         version: "v1.0",
@@ -177,17 +166,6 @@ const appsData = [
         icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/a3/d9/eb/a3d9eb83-980d-22a9-6163-18ad34b81f87/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
         addedDate: new Date("2025-06-20"),
         downloadLink: "https://tinyurl.com/33bxepa7"
-    },
-    {
-        id: 14,
-        name: "Meitu",
-        version: "1.0",
-        size: "566 MB",
-        category: "apps",
-        description: "Mở khóa một số tính năng không cần đăng nhập",
-        icon: "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/a9/d2/67/a9d2679e-1611-bdc5-ffcd-0663311447af/AppIcon-0-0-1x_U007emarketing-0-9-0-85-220.png/512x512bb.jpg",
-        addedDate: new Date("2025-06-20"),
-        downloadLink: "https://tinyurl.com/mr7ppsur"
     },
     {
         id: 15,
