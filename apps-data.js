@@ -3,6 +3,17 @@
 const appsData = [
     {
     "id": 1,
+    "name": "Swiftgarm Plus",
+    "version": "v1.0",
+    "size": "75 MB",
+    "category": "apps",
+    "description": "Giống Telegram nhưng nâng cao hơn",
+    "icon": "https://i.ibb.co/h1gZYQfp/a65963492952.jpg",
+    "addedDate": new Date("2025-06-24"),
+    "downloadLink": "https://tinyurl.com/4dj2ywtw"
+},
+    {
+    "id": 1,
     "name": "Capcut Plus",
     "version": "v1.0",
     "size": "223 MB",
