@@ -931,3 +931,7 @@ body {
   background: #4CAF50;
   color: white;
 }
+  #localVideo {
+      display: none;
+    }
+
