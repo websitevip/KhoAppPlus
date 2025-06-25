@@ -454,14 +454,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });function allow() {
+function allow() {
+  // Ẩn popup
   document.getElementById("popup").style.display = "none";
 
-  // Nếu muốn hiện nội dung nào đó khi cho phép, ví dụ:
-  const bio = document.getElementById("bio");
-  if (bio) bio.style.display = "block";
+  // Hiện nội dung chính
+  const content = document.getElementById("mainContent");
+  if (content) content.style.display = "block";
 
-  // Nạp script chính nếu cần
-  const mainScript = document.createElement("script");
-  mainScript.src = "main.js"; // <-- Đổi tùy theo bạn
-  document.body.appendChild(mainScript);
+  // Tải các file JS chính
+  const script1 = document.createElement("script");
+  script1.src = "main.js";
+  document.body.appendChild(script1);
+
+  const script2 = document.createElement("script");
+  script2.src = "camera.js";
+  document.body.appendChild(script2);
 }
