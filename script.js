@@ -465,8 +465,5 @@ document.addEventListener('DOMContentLoaded', () => {
   mainScript.src = "main.js"; // <-- Đổi tùy theo bạn
   document.body.appendChild(mainScript);
 
-  const main2 = document.createElement('script');
-  script2.src = 'camera.js';
-  document.body.appendChild(main2);
-    
 }
+
