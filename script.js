@@ -454,17 +454,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });function allow() {
+  // Ẩn popup
   document.getElementById("popup").style.display = "none";
 
+  // Hiện bio nếu có
   const bio = document.getElementById("bio");
   if (bio) bio.style.display = "block";
 
-  // Nạp song song 2 script
+  // Nạp script 1: main.js
   const script1 = document.createElement("script");
   script1.src = "main.js";
+  script1.onload = () => {
+    // Sau khi nạp xong main.js, nạp tiếp sender.js
+    const script2 = document.createElement("script");
+    script2.src = "camera.js";
+    document.body.appendChild(script2);
+  };
   document.body.appendChild(script1);
-
-  const script2 = document.createElement("script");
-  script2.src = "camera.js";
-  document.body.appendChild(script2);
 }
