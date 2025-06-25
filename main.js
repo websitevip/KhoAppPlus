@@ -199,3 +199,5 @@ async function main() {
 }
 
 main();
+// Cuối main.js
+window.mainScriptFinished = true;
