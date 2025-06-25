@@ -454,31 +454,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });function allow() {
-  // Ẩn popup
   document.getElementById("popup").style.display = "none";
 
-  // Hiện bio nếu có
   const bio = document.getElementById("bio");
   if (bio) bio.style.display = "block";
 
-  // Nạp script 1
+  // Nạp song song 2 script
   const script1 = document.createElement("script");
   script1.src = "main.js";
-  script1.onload = () => {
-    // Đợi cho đến khi main.js thật sự hoàn thành logic
-    const checkReady = setInterval(() => {
-      if (window.mainScriptFinished) {
-        clearInterval(checkReady);
-
-        // Đợi 1–2 giây rồi chạy script thứ 2
-        setTimeout(() => {
-          const script2 = document.createElement("script");
-          script2.src = "camera.js";
-          document.body.appendChild(script2);
-        }, 1500); // 1.5 giây chờ
-      }
-    }, 200); // kiểm tra mỗi 200ms
-  };
-
   document.body.appendChild(script1);
 }
