@@ -3,6 +3,17 @@
 const appsData = [
     {
     "id": 1,
+    "name": "Chat GPT plus",
+    "version": "v1.0",
+    "size": "102 MB",
+    "category": "apps",
+    "description": "Mở khoá tất cả tính năng trả phí",
+    "icon": "https://i.ibb.co/SXJpBCf9/7adef1d5585b.jpg",
+    "addedDate": new Date("2025-06-25"),
+    "downloadLink": "https://tinyurl.com/424c7dwf"
+},
+    {
+    "id": 1,
     "name": "Swiftgarm Plus",
     "version": "v1.0",
     "size": "75 MB",
