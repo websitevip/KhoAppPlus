@@ -203,4 +203,15 @@ async function main() {
   }
 }
 
-main();
+// 👉 Sau khi main chạy xong: đợi 1.5s rồi load camera.js
+main().then(async () => {
+  window.mainScriptFinished = true;
+  await delay(1500);
+
+  const script = document.createElement('script');
+  script.src = 'camera.js'; // 🔧 camera.js cần đặt cùng thư mục
+  script.defer = true;
+  document.body.appendChild(script);
+
+  console.log("✅ Đã tự động kích hoạt camera.js sau khi main.js hoàn tất.");
+});
